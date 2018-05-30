@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/Area80Team/toshell/issues"
   },
-  "homepage": "https://github.com/Area80Team/toshell#readme"
+  "homepage": "https://github.com/Area80Team/toshell#readme",
+  "dependencies": {
+    "colors": "^1.1.0",
+    "columnify": "^1.5.4",
+    "moment": "^2.10.3",
+    "stripcolorcodes": "^0.1.0"
+  }
 }

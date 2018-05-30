@@ -6,28 +6,31 @@ var columnify       = require("columnify");
 var path            = require("path");
 var util            = require("util");
 
-if(global._toShellLoggerPreference === undefined) {
-		global._toShellLoggerPreference = {
-			displayModulePath: true,
-			displaySystemLog : true,
-			displayDate      : false,
-			displayTime      : true,
-			displayFile      : true,
-			displayProjectID : true,
-			displayInfo      : true,
-			displayIcon      : true,
-			verboseLogTypeArray: [], //verbose log when use logger.logWithType
-			projectID          : "LOG",
+function getPreference () {
+	return {
+			displaySystemLog : true, //display log that calls via logger.systelLog
+			displayDate      : false, //display date
+			displayTime      : true, //display time
+			displayFile      : true, //display script path for each line
+			displayProjectID : true, //display project id
+			displayInfo      : true, //display line number
+			displayIcon      : true, //display icon
+			verboseLogTypeArray: [], //disable some log type when use logger.logWithType 
+			projectID          : "LOG", //project id
 			getCalcTabSize     : function () {
 				return ((this.displayFile) ? 38 : 0) +
 					   ((this.displayIcon) ? 2 : 0) +
 					   ((this.displayTime) ? 11 : 0) +
 					   ((this.displayDate) ? 9 : 0) +
 					   ((this.displayProjectID) ? (this.projectID.length + 3) : 0);
-			}
-		};
+			} //this will use to calculate tab size of the log line
+	};
 }
-var pref = global._toShellLoggerPreference;
+
+if(global._toShellLoggerPreference === undefined) {
+	global._toShellLoggerPreference = getPreference();
+}
+var globpref = global._toShellLoggerPreference;
 
 function Logger() {
 	"use strict";
@@ -35,30 +38,36 @@ function Logger() {
 	var icon_error  = "X";
 	var icon_normal = "-";
 	var icon_system = "*";
+	this.pref = globpref;
 	
 	
-	this.setPreference = function (newPref) {
-		for(var prop in pref) {
+	this.setPreference = function (newPref, forTheSessionOnly) {
+		if(forTheSessionOnly === true) {
+			this.pref = getPreference();
+		} else {
+			this.pref = globpref;
+		}
+		for(var prop in this.pref) {
 			if(newPref.hasOwnProperty(prop)) {
-				pref[prop] = newPref[prop];
+				this.pref[prop] = newPref[prop];
 			}
 		}
 	};
 
 	this._getBlockPrefix = function ($mode, $fileAndLine) {
 
-		return (pref.displayInfo) ? this._rightPaddingPrefix
+		return (this.pref.displayInfo) ? this._rightPaddingPrefix
 												  (
-													  ((pref.displayIcon) ? this._getBlockMode($mode) : "") +
-													  ((pref.displayTime) ? this._getBlockCurrentTime() + " " : "") +
-													  ((pref.displayProjectID) ? this._getBlockProjectID() : "") +
-													  ((pref.displayFile) ? this._getBlockFile($fileAndLine) : "")
+													  ((this.pref.displayIcon) ? this._getBlockMode($mode) : "") +
+													  ((this.pref.displayTime) ? this._getBlockCurrentTime() + " " : "") +
+													  ((this.pref.displayProjectID) ? this._getBlockProjectID() : "") +
+													  ((this.pref.displayFile) ? this._getBlockFile($fileAndLine) : "")
 												  ) : "";
 	};
 
 	this._getBlockCurrentTime = function () {
 		return "[" + colors.gray(
-				moment().format(((pref.displayDate) ? "YMMDD HH:mm:ss" : "HH:mm:ss"))
+				moment().format(((this.pref.displayDate) ? "YMMDD HH:mm:ss" : "HH:mm:ss"))
 			) + "]";
 	};
 	this._getColorFromMode = function ($mode, code) {
@@ -92,7 +101,7 @@ function Logger() {
 		return "[" + colors.gray(process.pid) + "]";
 	};
 	this._getBlockProjectID   = function () {
-		return "[" + colors.magenta(pref.projectID) + "]";
+		return "[" + colors.magenta(this.pref.projectID) + "]";
 	};
 	this._getBlockFile        = function ($fileAndLine) {
 		// var folder = path.resolve(__dirname,"../../");
@@ -119,7 +128,7 @@ function Logger() {
 
 	};
 	this._rightPaddingPrefix = function ($str) {
-		return this._rightPaddingAt(pref.getCalcTabSize(), $str);
+		return this._rightPaddingAt(this.pref.getCalcTabSize(), $str);
 	};
 	this._rightPaddingAt     = function ($number, $str) {
 		var len       = stripcolorcodes($str).length;
@@ -136,6 +145,7 @@ function Logger() {
 		}
 		return returnstr;
 	};
+
 }
 
 /**
@@ -184,7 +194,7 @@ Logger.prototype.logWithType = function ($type, $str) {
 
 
 	$str = this._getBlockPrefix("normal", logLineDetails) + " " + $str;
-	if (pref.verboseLogTypeArray.indexOf($type.toLowerCase()) === -1) console.log($str);
+	if (this.pref.verboseLogTypeArray.indexOf($type.toLowerCase()) === -1) console.log($str);
 };
 Logger.prototype.logFunction       = function ($str) {
 	$str = ($str == null) ? "" : colors.gray(" -- " + $str);
@@ -206,7 +216,7 @@ Logger.prototype.logFunction       = function ($str) {
 	var $type          = "sys-function";
 
 	var content = this._getBlockPrefix("normal", logLineDetails) + " " + str;
-	if (pref.verboseLogTypeArray.indexOf($type.toLowerCase()) == -1) console.log(content);
+	if (this.pref.verboseLogTypeArray.indexOf($type.toLowerCase()) == -1) console.log(content);
 };
 Logger.prototype.logCallerFunction = function ($str) {
 	$str = ($str == null) ? "" : colors.gray(" -- " + $str);
@@ -228,7 +238,7 @@ Logger.prototype.logCallerFunction = function ($str) {
 	var $type          = "sys-function";
 
 	var content = this._getBlockPrefix("normal", logLineDetails) + " " + str;
-	if (pref.verboseLogTypeArray.indexOf($type.toLowerCase()) == -1) console.log(content);
+	if (this.pref.verboseLogTypeArray.indexOf($type.toLowerCase()) == -1) console.log(content);
 };
 /**
  * Log and indent to the main grid column
@@ -238,7 +248,7 @@ Logger.prototype.logWithTab = function ($str) {
 	var logLineDetails = this._getFileStack();
 	var textlength     = stripcolorcodes(this._getBlockPrefix("normal", logLineDetails)).length;
 
-	arguments[0] = ((pref.displayInfo) ? this._rightPaddingAt(textlength, " ") : "") + " " + arguments[0];
+	arguments[0] = ((this.pref.displayInfo) ? this._rightPaddingAt(textlength, " ") : "") + " " + arguments[0];
 	console.log.apply(this, arguments);
 };
 /**
@@ -287,7 +297,7 @@ Logger.prototype.logRouteObject = function ($routeObject, $whatIsIt) {
 		}
 	}
 
-	if (pref.displayModulePath) this.logWithTab("[" + $routeObject.method + "] " + $routeObject.path + $whatIsIt);
+	if (this.pref.displayModulePath) this.logWithTab("[" + $routeObject.method + "] " + $routeObject.path + $whatIsIt);
 	return $routeObject;
 };
 /**

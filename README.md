@@ -6,19 +6,19 @@ Simple text logger for node application.
 ### Usage
 
 ```javascript
-var logger = require("./index");
-logger.log("Log using log()");
-logger.warn("Log using warn()");
-logger.error("Log using error()");
-logger.systemLog("Log using systemLog()");
+var toshell = require("toshell");
+toshell.log("Log using log()");
+toshell.warn("Log using warn()");
+toshell.error("Log using error()");
+toshell.systemLog("Log using systemLog()");
 
 var myFuntion = function () {
-	logger.logFunction("Log within closure function using logFunction()");
+	toshell.logFunction("Log within closure function using logFunction()");
 }
 myFuntion();
 
-logger.setPreference({projectID:"MY_PROJECT"});
-logger.log("Logging after setPreference({projectID}) ");
+toshell.setPreference({projectID:"MY_PROJECT"});
+toshell.log("Logging after setPreference({projectID}) ");
 ```
 
 ### Preference
@@ -28,14 +28,14 @@ Preference can set at any point of the application.
 It's will apply to all usage afterwards, by default.
 
 ```javascript
-var logger = require("./index");
-logger.setPreference({
+var toshell = require("toshell");
+toshell.setPreference({
 	projectID : "MY_PROJECT"
 });
 ```
 or
 ```javascript
-logger.setPreference({
+toshell.setPreference({
 	displaySystemLog : true, //display log that calls via logger.systelLog
 	displayDate      : false, //display date
 	displayTime      : true, //display time
@@ -58,6 +58,6 @@ logger.setPreference({
 You can change behavior of preference to apply within the file
 
 ```javascript
-logger.setPreference({projectID:"MY_PROJECT"}, true);
+toshell.setPreference({projectID:"MY_PROJECT"}, true);
 //the preference will only apply to current require scope...
 ```

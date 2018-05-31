@@ -13,7 +13,7 @@ function getPreference () {
 			displayTime      : true, //display time
 			displayFile      : true, //display script path for each line
 			displayProjectID : true, //display project id
-			displayInfo      : true, //display line number
+			displayInfo      : true, //display additional information
 			displayIcon      : true, //display icon
 			verboseLogTypeArray: [], //disable some log type when use logger.logWithType 
 			projectID          : "LOG", //project id
@@ -67,7 +67,7 @@ function Logger() {
 
 	this._getBlockCurrentTime = function () {
 		return "[" + colors.gray(
-				moment().format(((this.pref.displayDate) ? "YMMDD HH:mm:ss" : "HH:mm:ss"))
+				moment().format(((this.pref.displayDate) ? "YYYY-MM-DD HH:mm:ss" : "HH:mm:ss"))
 			) + "]";
 	};
 	this._getColorFromMode = function ($mode, code) {
@@ -154,7 +154,7 @@ function Logger() {
  */
 Logger.prototype.log = function ($str) {
 	var logLineDetails = this._getFileStack();
-	arguments[0]       = this._getBlockPrefix("normal", logLineDetails) + " " + arguments[0];
+	arguments[0]       = this._getBlockPrefix("normal", logLineDetails) + (this.pref.displayInfo?" ":"") + arguments[0];
 	console.log.apply(this, arguments);
 };
 /**
@@ -163,7 +163,7 @@ Logger.prototype.log = function ($str) {
  */
 Logger.prototype.warn = function ($str) {
 	var logLineDetails = this._getFileStack();
-	arguments[0]       = this._getBlockPrefix("warn", logLineDetails) + " " + this._getColorFromMode("warn", arguments[0]);
+	arguments[0]       = this._getBlockPrefix("warn", logLineDetails) + (this.pref.displayInfo?" ":"") + this._getColorFromMode("warn", arguments[0]);
 	console.log.apply(this, arguments);
 };
 /**
@@ -172,7 +172,7 @@ Logger.prototype.warn = function ($str) {
  */
 Logger.prototype.error = function ($str) {
 	var logLineDetails = this._getFileStack();
-	arguments[0]       = this._getBlockPrefix("error", logLineDetails) + " " + this._getColorFromMode("error", arguments[0]);
+	arguments[0]       = this._getBlockPrefix("error", logLineDetails) + (this.pref.displayInfo?" ":"") + this._getColorFromMode("error", arguments[0]);
 	console.log.apply(this, arguments);
 };
 /**
@@ -181,7 +181,7 @@ Logger.prototype.error = function ($str) {
  */
 Logger.prototype.systemLog = function ($str) {
 	var logLineDetails = this._getFileStack();
-	arguments[0]       = this._getBlockPrefix("system", logLineDetails) + " " +  this._getColorFromMode("system", arguments[0]);
+	arguments[0]       = this._getBlockPrefix("system", logLineDetails) + (this.pref.displayInfo?" ":"") +  this._getColorFromMode("system", arguments[0]);
 	console.log.apply(this, arguments);
 };
 /**
@@ -193,7 +193,7 @@ Logger.prototype.logWithType = function ($type, $str) {
 	var logLineDetails = this._getFileStack();
 
 
-	$str = this._getBlockPrefix("normal", logLineDetails) + " " + $str;
+	$str = this._getBlockPrefix("normal", logLineDetails) + (this.pref.displayInfo?" ":"") + $str;
 	if (this.pref.verboseLogTypeArray.indexOf($type.toLowerCase()) === -1) console.log($str);
 };
 Logger.prototype.logFunction       = function ($str) {
@@ -237,8 +237,8 @@ Logger.prototype.logCallerFunction = function ($str) {
 	var logLineDetails = this._getFileStack();
 	var $type          = "sys-function";
 
-	var content = this._getBlockPrefix("normal", logLineDetails) + " " + str;
-	if (this.pref.verboseLogTypeArray.indexOf($type.toLowerCase()) == -1) console.log(content);
+	var content = this._getBlockPrefix("normal", logLineDetails) + (this.pref.displayInfo?" ":"") + str;
+	if (this.pref.verboseLogTypeArray.indexOf($type.toLowerCase()) === -1) console.log(content);
 };
 /**
  * Log and indent to the main grid column
@@ -248,7 +248,7 @@ Logger.prototype.logWithTab = function ($str) {
 	var logLineDetails = this._getFileStack();
 	var textlength     = stripcolorcodes(this._getBlockPrefix("normal", logLineDetails)).length;
 
-	arguments[0] = ((this.pref.displayInfo) ? this._rightPaddingAt(textlength, " ") : "") + " " + arguments[0];
+	arguments[0] = ((this.pref.displayInfo) ? this._rightPaddingAt(textlength, " ") : "") + (this.pref.displayInfo?" ":"") + arguments[0];
 	console.log.apply(this, arguments);
 };
 /**
@@ -262,8 +262,8 @@ Logger.prototype.logRouteObject = function ($routeObject, $whatIsIt) {
 	var handler;
 	var self           = this;
 	var api            = $routeObject.path;
-	$whatIsIt          = ($whatIsIt == null) ? "" : "   " + colors.gray("- " + $whatIsIt);
-	if ($routeObject.config != null && typeof $routeObject.config.handler == "function") {
+	$whatIsIt          = ($whatIsIt === undefined || $whatIsIt === null) ? "" : "   " + colors.gray("- " + $whatIsIt);
+	if ($routeObject.hasOwnProperty("config") && $routeObject.config !== null && typeof $routeObject.config.handler === "function") {
 		handler                     = $routeObject.config.handler;
 		$routeObject.config.handler = function (req, reply) {
 			"use strict";
@@ -279,12 +279,12 @@ Logger.prototype.logRouteObject = function ($routeObject, $whatIsIt) {
 			handler(req, reply);
 		};
 	} else {
-		if (typeof $routeObject.handler == "function") {
+		if (typeof $routeObject.handler === "function") {
 			handler              = $routeObject.handler;
 			$routeObject.handler = function (req, reply) {
 				"use strict";
 				self.systemLog("[" + colors.yellow("REQUEST") + "] " + colors.magenta(api) + " " + colors.cyan("at " + logLineDetails));
-				if (typeof reply.view == "function") {
+				if (typeof reply.view === "function") {
 					var repFunction = reply.view;
 					reply.view      = function ($view) {
 						self.systemLog("[" + colors.green("TEMPLATE") + "] " + colors.green($view) + " is used, from request " + colors.magenta(api) + " " + colors.cyan("at " + logLineDetails));
@@ -306,7 +306,7 @@ Logger.prototype.logRouteObject = function ($routeObject, $whatIsIt) {
  * @param $depth {number=3}
  */
 Logger.prototype.inspect = function ($object, $depth) {
-	$depth = ($depth == null) ? 3 : $depth;
+	$depth = ($depth === undefined || $depth === null) ? 3 : $depth;
 	console.log(util.inspect($object, {showHidden: false, depth: $depth}));
 };
 /**

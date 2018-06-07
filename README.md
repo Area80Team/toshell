@@ -2,6 +2,18 @@
 Simple text logger for node application.
 We create it for fast and beautiful logging.
 
+- Beautiful logging.
+- Light weigt.
+- Log caller file and line number.
+- Create custom log type, then you can choose what you want to display at the moment without commenting out the line.
+- Global settings also avaliable for your project scope and environment.
+
+### TODO
+- [ ] parse any object as preety json format
+- [ ] cli command line
+
+[![NPM](https://nodei.co/npm/toshell.png)](https://nodei.co/npm/toshell/)
+
 ![Screenshot](https://www.dropbox.com/s/pvaqq7zhur96myz/logger-2.png?raw=1)
 
 ### Usage

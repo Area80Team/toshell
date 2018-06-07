@@ -16,6 +16,14 @@
     "url": "https://github.com/Area80Team/toshell/issues"
   },
   "homepage": "https://github.com/Area80Team/toshell#readme",
+  "keywords": [
+    "terminal",
+    "logging",
+    "sysadmin",
+    "tools",
+    "stdout",
+    "stream"
+  ],
   "dependencies": {
     "colors": "^1.1.0",
     "columnify": "^1.5.4",

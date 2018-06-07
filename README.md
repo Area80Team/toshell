@@ -8,13 +8,19 @@ We create it for fast and beautiful logging.
 - Create custom log type, then you can choose what you want to display at the moment without commenting out the line.
 - Global settings also avaliable for your project scope and environment.
 
+[![NPM](https://nodei.co/npm/toshell.png)](https://nodei.co/npm/toshell/)
+
+---
+
 ### TODO
 - [ ] parse any object as pretty json format
 - [ ] cli command line
 
-[![NPM](https://nodei.co/npm/toshell.png)](https://nodei.co/npm/toshell/)
+---
 
 ![Screenshot](https://www.dropbox.com/s/pvaqq7zhur96myz/logger-2.png?raw=1)
+
+---
 
 ### Usage
 
@@ -35,6 +41,7 @@ myFuntion();
 toshell.setPreference({projectID:"MY_PROJECT"});
 toshell.log("Logging after setPreference({projectID}) ");
 ```
+---
 
 ### Preference
 
@@ -78,6 +85,7 @@ var toshell = require("toshell");
 toshell.setPreference({projectID:"MY_PROJECT"}, true);
 //the preference will only apply to current require scope...
 ```
+---
 
 ### Playing around with preference
 

@@ -1,7 +1,6 @@
 var moment          = require("moment");
 var colors          = require("colors");
 var stripcolorcodes = require("stripcolorcodes");
-var columnify       = require("columnify");
 /* node libs*/
 var path            = require("path");
 var util            = require("util");
@@ -252,55 +251,6 @@ Logger.prototype.logWithTab = function ($str) {
 	console.log.apply(this, arguments);
 };
 /**
- * Internal, log route object, this function will fire 3 logs, ROUTE_PATH(close at preference setting), REQUEST, TEMPLATE
- * @param $routeObject
- * @param $whatIsIt {string=""}
- * @returns {*}
- */
-Logger.prototype.logRouteObject = function ($routeObject, $whatIsIt) {
-	var logLineDetails = this._getFileStack();
-	var handler;
-	var self           = this;
-	var api            = $routeObject.path;
-	$whatIsIt          = ($whatIsIt === undefined || $whatIsIt === null) ? "" : "   " + colors.gray("- " + $whatIsIt);
-	if ($routeObject.hasOwnProperty("config") && $routeObject.config !== null && typeof $routeObject.config.handler === "function") {
-		handler                     = $routeObject.config.handler;
-		$routeObject.config.handler = function (req, reply) {
-			"use strict";
-			self.systemLog("[" + colors.yellow("REQUEST") + "] " + colors.magenta(api) + " " + colors.cyan("at " + logLineDetails));
-			if (typeof reply.view === "function") {
-				var repFunction = reply.view;
-				reply.view      = function ($view) {
-					self.systemLog("[" + colors.green("TEMPLATE") + "]  " + colors.green($view) + " is used, from request " + colors.magenta(api) + " " + colors.cyan("at " + logLineDetails));
-					this.view = repFunction;
-					repFunction.apply(this, arguments);
-				};
-			}
-			handler(req, reply);
-		};
-	} else {
-		if (typeof $routeObject.handler === "function") {
-			handler              = $routeObject.handler;
-			$routeObject.handler = function (req, reply) {
-				"use strict";
-				self.systemLog("[" + colors.yellow("REQUEST") + "] " + colors.magenta(api) + " " + colors.cyan("at " + logLineDetails));
-				if (typeof reply.view === "function") {
-					var repFunction = reply.view;
-					reply.view      = function ($view) {
-						self.systemLog("[" + colors.green("TEMPLATE") + "] " + colors.green($view) + " is used, from request " + colors.magenta(api) + " " + colors.cyan("at " + logLineDetails));
-						this.view = repFunction;
-						repFunction.apply(this, arguments);
-					};
-				}
-				handler(req, reply);
-			};
-		}
-	}
-
-	if (this.pref.displayModulePath) this.logWithTab("[" + $routeObject.method + "] " + $routeObject.path + $whatIsIt);
-	return $routeObject;
-};
-/**
  * Nothing special right now, just object inspector (TODO:Prettify)
  * @param $object
  * @param $depth {number=3}
@@ -322,7 +272,7 @@ Logger.prototype.section = function ($name, $size) {
 };
 
 /**
- *
+ * Log Line
  * @param $size     {number=0}
  * @param $style    {string=""}
  * @param $bottomsize {number=0}
@@ -340,6 +290,5 @@ Logger.prototype.line = function ($size, $style, $bottomsize) {
 };
 
 Logger.prototype.LINE_WIDTH = 160;
-
 
 module.exports = new Logger();

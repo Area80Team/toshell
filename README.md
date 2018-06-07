@@ -9,7 +9,7 @@ We create it for fast and beautiful logging.
 - Global settings also avaliable for your project scope and environment.
 
 ### TODO
-- [ ] parse any object as preety json format
+- [ ] parse any object as pretty json format
 - [ ] cli command line
 
 [![NPM](https://nodei.co/npm/toshell.png)](https://nodei.co/npm/toshell/)

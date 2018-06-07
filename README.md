@@ -3,7 +3,7 @@ Simple text logger for node application.
 We create it for fast and beautiful logging.
 
 - Beautiful logging.
-- Light weigt.
+- Light weight.
 - Log caller file and line number.
 - Create custom log type, then you can choose what you want to display at the moment without commenting out the line.
 - Global settings also avaliable for your project scope and environment.

@@ -1,15 +1,14 @@
 export declare type ILogConfig = {
-    displayModulePath?: boolean;
-    displaySystemLog?: boolean;
     displayDate?: boolean;
     displayTime?: boolean;
     displayFile?: boolean;
     displayProjectID?: boolean;
     displayInfo?: boolean;
+    fileMaxLength?: number;
     displayIcon?: boolean;
     verboseLogTypeArray?: string[];
     projectID?: string;
-    getCalcTabSize?(): number;
+    rootFolder?: string;
 };
 export declare function setPreference(logConfig: ILogConfig): void;
 /**

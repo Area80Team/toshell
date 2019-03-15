@@ -7,25 +7,25 @@ const stripcolorcodes = require("stripcolorcodes");
 const util = require("util");
 var pref = {
     logConfig: {
-        displayModulePath: false,
-        displaySystemLog: true,
         displayDate: false,
         displayTime: true,
         displayFile: true,
         displayProjectID: true,
         displayInfo: true,
+        fileMaxLength: 34,
         displayIcon: true,
         verboseLogTypeArray: [],
         projectID: "",
-        getCalcTabSize: function () {
-            return ((this.displayFile) ? 38 : 0) +
-                ((this.displayIcon) ? 2 : 0) +
-                ((this.displayTime) ? 11 : 0) +
-                ((this.displayDate) ? 9 : 0) +
-                ((this.displayProjectID && this.projectID !== '') ? (this.projectID.length + 3) : 0);
-        }
+        rootFolder: path.resolve(__dirname, "../../../")
     }
 };
+function getCalcTabSize() {
+    return ((pref.logConfig.displayFile) ? pref.logConfig.fileMaxLength : 0) +
+        ((pref.logConfig.displayIcon) ? 3 : 0) +
+        ((pref.logConfig.displayTime) ? 10 : 0) +
+        ((pref.logConfig.displayDate) ? 9 : 0) +
+        ((pref.logConfig.displayProjectID && pref.logConfig.projectID !== '') ? (pref.logConfig.projectID.length + 2) : 0);
+}
 function setPreference(logConfig) {
     pref.logConfig = Object.assign({}, pref.logConfig, logConfig);
 }
@@ -72,11 +72,11 @@ function _getBlockFile($fileAndLine) {
     return "[" + colors.cyan($fileAndLine) + "]";
 }
 function _rightPaddingPrefix($str) {
-    return _rightPaddingAt(pref.logConfig.getCalcTabSize(), $str);
+    return _rightPaddingAt(getCalcTabSize(), $str);
 }
 function _getBlockPrefix($mode, $fileAndLine) {
     return (pref.logConfig.displayInfo) ? _rightPaddingPrefix(((pref.logConfig.displayIcon) ? _getBlockMode($mode) : "") +
-        ((pref.logConfig.displayTime) ? _getBlockCurrentTime() + " " : "") +
+        ((pref.logConfig.displayTime) ? _getBlockCurrentTime() + "" : "") +
         ((pref.logConfig.displayProjectID && pref.logConfig.projectID !== '') ? _getBlockProjectID() : "") +
         ((pref.logConfig.displayFile) ? _getBlockFile($fileAndLine) : "")) : "";
 }
@@ -88,9 +88,12 @@ function _getFileStack() {
     while ((match = reg.exec(stack)) != null) {
         matcharray.push(match[1]);
     }
-    var folder = path.resolve(__dirname, "../../");
+    var folder = pref.logConfig.rootFolder;
     //console.log(matcharray);
-    return matcharray[2].split(folder)[1];
+    var file = matcharray[2].split(folder)[1];
+    if (file.length > pref.logConfig.fileMaxLength)
+        file = '...' + file.slice(file.length - (pref.logConfig.fileMaxLength - 3));
+    return file;
 }
 /**
  * Default Log (console.log) with options

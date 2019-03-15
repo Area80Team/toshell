@@ -1,13 +1,13 @@
 {
   "name": "toshell",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Simple text logger for node application.",
   "main": "dist/index.js",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf dist/ && tsc",
+    "build": "rm -rf dist/ && tsc && node example/index.js",
     "clean-git": "git rm -r --cached . && git add -A && echo 'done'",
     "test": "mocha --require ts-node/register --watch-extensions ts,tsx 'src/__test__/**/*.test.{ts,tsx}'"
   },
@@ -16,7 +16,7 @@
     "url": "git+https://github.com/Area80Team/toshell.git"
   },
   "author": "Wissarut Pimanmassuriya",
-  "license": "MIT",gi
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Area80Team/toshell/issues"
   },

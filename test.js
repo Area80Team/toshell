@@ -1,4 +1,4 @@
-var toshell = require("./index");
+var toshell = require("./dist");
 toshell.log("Log using log()");
 toshell.warn("Log using warn()");
 toshell.error("Log using error()");
@@ -28,7 +28,7 @@ toshell.setPreference({
             ((this.displayDate) ? 9 : 0) +
             ((this.displayProjectID) ? (this.projectID.length + 3) : 0);
     } //this will use to calculate tab size of the log line
-}, true);
+});
 
 toshell.log("Logging after setPreference() ");
 
@@ -40,22 +40,22 @@ toshell.logWithTab("Line 3");
 
 toshell.section("Playing with preference");
 
-toshell.setPreference({projectID:"MY_PROJECT", getCalcTabSize:function(){return 50;}},true);
+toshell.setPreference({projectID:"MY_PROJECT", getCalcTabSize:function(){return 50;}});
 toshell.log("projectID:\"MY_PROJECT\" && Fix tab size with getCalcTabsize() preference");
 
-toshell.setPreference({displayFile:false, getCalcTabSize:function(){return 50;}},true);
+toshell.setPreference({displayFile:false, getCalcTabSize:function(){return 50;}});
 toshell.warn("displayFile:false && Fix tab size with getCalcTabsize() preference");
 
-toshell.setPreference({displayDate:true, getCalcTabSize:function(){return 50;}},true);
+toshell.setPreference({displayDate:true, getCalcTabSize:function(){return 50;}});
 toshell.error("displayDate:true && Fix tab size with getCalcTabsize() preference");
 
 toshell.line();
-toshell.setPreference({projectID:"MY_PROJECT", getCalcTabSize:function(){return 70;}},true);
+toshell.setPreference({projectID:"MY_PROJECT", getCalcTabSize:function(){return 70;}});
 toshell.log("projectID:\"MY_PROJECT\" && Fix tab size with getCalcTabsize() preference");
 
-toshell.setPreference({displayFile:false, getCalcTabSize:function(){return 70;}},true);
+toshell.setPreference({displayFile:false, getCalcTabSize:function(){return 70;}});
 toshell.warn("displayFile:false && Fix tab size with getCalcTabsize() preference");
 
-toshell.setPreference({displayDate:true, getCalcTabSize:function(){return 70;}},true);
+toshell.setPreference({displayDate:true, getCalcTabSize:function(){return 70;}});
 toshell.error("displayDate:true && Fix tab size with getCalcTabsize() preference");
 toshell.line();

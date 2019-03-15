@@ -7,6 +7,7 @@ We create it for fast and beautiful logging.
 - Log caller file and line number.
 - Create custom log type, then you can choose what you want to display at the moment without commenting out the line.
 - Global settings also avaliable for your project scope and environment.
+- Typescript Support
 
 [![NPM](https://nodei.co/npm/toshell.png)](https://nodei.co/npm/toshell/)
 
@@ -14,7 +15,8 @@ We create it for fast and beautiful logging.
 
 ### TODO
 - [ ] parse any object as pretty json format
-- [ ] cli command line
+- [ ] cli command line 
+- [ ] transfer log to web with interactive interface (json object viewer, filter, search)
 
 ---
 
@@ -82,7 +84,7 @@ You can change behavior of preference to apply within the file
 
 ```javascript
 var toshell = require("toshell");
-toshell.setPreference({projectID:"MY_PROJECT"}, true);
+toshell.setPreference({projectID:"MY_PROJECT"});
 //the preference will only apply to current require scope...
 ```
 ---
@@ -100,23 +102,23 @@ toshell.logWithTab("Line 3");
 
 toshell.section("Playing with preference");
 
-toshell.setPreference({projectID:"MY_PROJECT", getCalcTabSize:function(){return 50;}},true);
+toshell.setPreference({projectID:"MY_PROJECT", getCalcTabSize:function(){return 50;}});
 toshell.log("projectID:\"MY_PROJECT\" && Fix tab size with getCalcTabsize() preference");
 
-toshell.setPreference({displayFile:false, getCalcTabSize:function(){return 50;}},true);
+toshell.setPreference({displayFile:false, getCalcTabSize:function(){return 50;}});
 toshell.warn("displayFile:false && Fix tab size with getCalcTabsize() preference");
 
-toshell.setPreference({displayDate:true, getCalcTabSize:function(){return 50;}},true);
+toshell.setPreference({displayDate:true, getCalcTabSize:function(){return 50;}});
 toshell.error("displayDate:true && Fix tab size with getCalcTabsize() preference");
 
 toshell.line();
-toshell.setPreference({projectID:"MY_PROJECT", getCalcTabSize:function(){return 70;}},true);
+toshell.setPreference({projectID:"MY_PROJECT", getCalcTabSize:function(){return 70;}});
 toshell.log("projectID:\"MY_PROJECT\" && Fix tab size with getCalcTabsize() preference");
 
-toshell.setPreference({displayFile:false, getCalcTabSize:function(){return 70;}},true);
+toshell.setPreference({displayFile:false, getCalcTabSize:function(){return 70;}});
 toshell.warn("displayFile:false && Fix tab size with getCalcTabsize() preference");
 
-toshell.setPreference({displayDate:true, getCalcTabSize:function(){return 70;}},true);
+toshell.setPreference({displayDate:true, getCalcTabSize:function(){return 70;}});
 toshell.error("displayDate:true && Fix tab size with getCalcTabsize() preference");
 toshell.line();
 ```

@@ -1,10 +1,15 @@
 {
   "name": "toshell",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Simple text logger for node application.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "node test.js"
+    "build": "rm -rf dist/ && tsc",
+    "clean-git": "git rm -r --cached . && git add -A && echo 'done'",
+    "test": "mocha --require ts-node/register --watch-extensions ts,tsx 'src/__test__/**/*.test.{ts,tsx}'"
   },
   "repository": {
     "type": "git",
@@ -27,7 +32,17 @@
   "dependencies": {
     "colors": "^1.1.0",
     "columnify": "^1.5.4",
-    "moment": "^2.10.3",
-    "stripcolorcodes": "^0.1.0"
+    "moment": "^2.24.0",
+    "stripcolorcodes": "^0.1.0",
+    "util": "^0.11.1"
+  },
+  "devDependencies": {
+    "typescript": "^3.3.3333",
+    "@types/mocha": "5.2.3",
+    "@types/node": "^10.5.2",
+    "chai": "^4.2.0",
+    "mocha": "^6.0.2",
+    "ts-loader": "^4.4.1",
+    "ts-node": "^7.0.0"
   }
 }

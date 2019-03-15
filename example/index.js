@@ -17,6 +17,7 @@ toshell.setPreference({
     displayProjectID : true, //display project id
     displayInfo      : true, //display additional information
     displayIcon      : true, //display icon
+    fileMaxLength    : 30, //set maximum length of file path
     verboseLogTypeArray: [], //disable some log type when use logger.logWithType
     projectID          : "LOG" //project id
 });

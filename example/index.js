@@ -51,3 +51,6 @@ toshell.warn("displayFile:false");
 toshell.setPreference({displayDate:true});
 toshell.error("displayDate:true");
 toshell.line();
+
+toshell.inspect(require('../package.json'));
+toshell.inspect(module);

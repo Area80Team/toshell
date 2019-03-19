@@ -205,7 +205,7 @@ exports.logWithTab = logWithTab;
  */
 function inspect($object, $depth = 3) {
     $depth = ($depth == null) ? 3 : $depth;
-    console.log(util.inspect($object, { showHidden: false, depth: $depth }));
+    console.log(util.inspect($object, { showHidden: false, depth: $depth, colors: true }));
 }
 exports.inspect = inspect;
 /**

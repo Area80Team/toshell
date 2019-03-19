@@ -257,8 +257,6 @@ export function logWithTab($str: string): void {
 	console.log.apply(this, arguments);
 }
 
-
-
 /**
  * Nothing special right now, just object inspector (TODO:Prettify)
  * @param $object
@@ -267,7 +265,7 @@ export function logWithTab($str: string): void {
 
 export function inspect($object: any, $depth: number = 3): void {
 	$depth = ($depth == null) ? 3 : $depth;
-	console.log(util.inspect($object, {showHidden: false, depth: $depth}));
+	console.log(util.inspect($object, {showHidden: false, depth: $depth, colors:true}));
 }
 
 /**

@@ -1,6 +1,6 @@
 {
   "name": "toshell",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Simple text logger for node application.",
   "main": "dist/index.js",
   "files": [

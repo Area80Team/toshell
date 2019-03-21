@@ -5,7 +5,7 @@ const colors = require("colors");
 const path = require("path");
 const stripcolorcodes = require("stripcolorcodes");
 const util = require("util");
-var pref = {
+var standardPreference = {
     logConfig: {
         displayDate: false,
         displayTime: true,
@@ -19,17 +19,7 @@ var pref = {
         rootFolder: path.resolve(__dirname, "../../../")
     }
 };
-function getCalcTabSize() {
-    return ((pref.logConfig.displayFile) ? pref.logConfig.fileMaxLength : 0) +
-        ((pref.logConfig.displayIcon) ? 3 : 0) +
-        ((pref.logConfig.displayTime) ? 10 : 0) +
-        ((pref.logConfig.displayDate) ? 9 : 0) +
-        ((pref.logConfig.displayProjectID && pref.logConfig.projectID !== '') ? (pref.logConfig.projectID.length + 2) : 0);
-}
-function setPreference(logConfig) {
-    pref.logConfig = Object.assign({}, pref.logConfig, logConfig);
-}
-exports.setPreference = setPreference;
+const LINE_WIDTH = 160;
 const icon_warn = "?";
 const icon_error = "X";
 const icon_normal = "-";
@@ -49,8 +39,8 @@ function _repeatString($number, $str) {
     }
     return returnstr;
 }
-function _getBlockCurrentTime() {
-    return "[" + colors.gray(moment().format(((pref.logConfig.displayDate) ? "YMMDD HH:mm:ss" : "HH:mm:ss"))) + "]";
+function _getBlockFile($fileAndLine) {
+    return "[" + colors.cyan($fileAndLine) + "]";
 }
 function _getBlockMode($mode) {
     switch ($mode) {
@@ -65,178 +55,203 @@ function _getBlockMode($mode) {
             return colors.white("[" + icon_normal + "]");
     }
 }
-function _getBlockProjectID() {
-    return "[" + colors.magenta(pref.logConfig.projectID) + "]";
-}
-function _getBlockFile($fileAndLine) {
-    return "[" + colors.cyan($fileAndLine) + "]";
-}
-function _rightPaddingPrefix($str) {
-    return _rightPaddingAt(getCalcTabSize(), $str);
-}
-function _getBlockPrefix($mode, $fileAndLine) {
-    return (pref.logConfig.displayInfo) ? _rightPaddingPrefix(((pref.logConfig.displayIcon) ? _getBlockMode($mode) : "") +
-        ((pref.logConfig.displayTime) ? _getBlockCurrentTime() + "" : "") +
-        ((pref.logConfig.displayProjectID && pref.logConfig.projectID !== '') ? _getBlockProjectID() : "") +
-        ((pref.logConfig.displayFile) ? _getBlockFile($fileAndLine) : "")) : "";
-}
-function _getFileStack() {
-    var stack = (new Error().stack).toString();
-    var reg = /[(]?([a-z\-\&A-Z._:0-9/]+[0-9]+:[0-9]+)[)]?/mg;
-    var match;
-    var matcharray = [];
-    while ((match = reg.exec(stack)) != null) {
-        matcharray.push(match[1]);
+class ToShell {
+    constructor(logConfig) {
+        this.pref = {
+            logConfig: Object.assign({}, standardPreference.logConfig, logConfig)
+        };
     }
-    var folder = pref.logConfig.rootFolder;
-    //console.log(matcharray);
-    var file = matcharray[2].split(folder)[1];
-    if (file.length > pref.logConfig.fileMaxLength)
-        file = '...' + file.slice(file.length - (pref.logConfig.fileMaxLength - 3));
-    return file;
-}
-/**
- * Default Log (console.log) with options
- * @param $str
- */
-function log($str) {
-    var logLineDetails = _getFileStack();
-    arguments[0] = _getBlockPrefix("normal", logLineDetails) + " " + arguments[0];
-    console.log.apply(this, arguments);
-}
-exports.log = log;
-/**
- * Default Log with warn type
- * @param $str
- */
-function warn($str) {
-    var logLineDetails = _getFileStack();
-    arguments[0] = _getBlockPrefix("warn", logLineDetails) + " " + arguments[0];
-    console.log.apply(this, arguments);
-}
-exports.warn = warn;
-/**
- * Error Log
- * @param $str
- */
-function error($str) {
-    var logLineDetails = _getFileStack();
-    arguments[0] = _getBlockPrefix("error", logLineDetails) + " " + arguments[0];
-    console.log.apply(this, arguments);
-}
-exports.error = error;
-/**
- * Default Log, but mark as system type
- * @param $str
- */
-function systemLog($str) {
-    var logLineDetails = _getFileStack();
-    arguments[0] = _getBlockPrefix("system", logLineDetails) + " " + arguments[0];
-    console.log.apply(this, arguments);
-}
-exports.systemLog = systemLog;
-/**
- * Default Log, but mark as specific type
- * @param $type Specific Type (This can be set verbose anytime at preference.logConfig.verboseLogTypeArray[])
- * @param $str
- */
-function logWithType($type, $str) {
-    var logLineDetails = _getFileStack();
-    $str = _getBlockPrefix("normal", logLineDetails) + " " + $str;
-    if (pref.logConfig.verboseLogTypeArray.indexOf($type.toLowerCase()) === -1)
-        console.log($str);
-}
-exports.logWithType = logWithType;
-/**
- * Log current function location
- * @param $str
- */
-function logFunction($str) {
-    $str = ($str == null) ? "" : colors.gray(" -- " + $str);
-    var stack = (new Error().stack).toString();
-    var reg = /(at ([a-zA-Z0-9.]+) )/mg;
-    var match;
-    var matcharray = [];
-    while ((match = reg.exec(stack)) != null) {
-        matcharray.push(match[2]);
+    /**
+     * Create New Instance of ToShell
+     * @param logConfig
+     * @param inheritConfig copy current config to new instance or use default configuration
+     */
+    newInstance(logConfig, inheritConfig) {
+        if (inheritConfig) {
+            return new ToShell(Object.assign({}, this.pref.logConfig, logConfig));
+        }
+        else {
+            return new ToShell(logConfig);
+        }
     }
-    var functionName = matcharray[1];
-    var str = "[" + colors.blue("FUNCTION") + "] " + colors.blue(functionName + "()") + $str;
-    var logLineDetails = _getFileStack();
-    var $type = "sys-function";
-    var content = _getBlockPrefix("normal", logLineDetails) + " " + str;
-    if (pref.logConfig.verboseLogTypeArray.indexOf($type.toLowerCase()) == -1)
-        console.log(content);
-}
-exports.logFunction = logFunction;
-function logCallerFunction($str) {
-    $str = ($str == null) ? "" : colors.gray(" -- " + $str);
-    var stack = (new Error().stack).toString();
-    var reg = /(at ([a-zA-Z0-9.]+) )/mg;
-    var match;
-    var matcharray = [];
-    while ((match = reg.exec(stack)) != null) {
-        matcharray.push(match[2]);
+    _getBlockCurrentTime() {
+        return "[" + colors.gray(moment().format(((this.pref.logConfig.displayDate) ? "YMMDD HH:mm:ss" : "HH:mm:ss"))) + "]";
     }
-    var functionName = matcharray[2];
-    var str = "[" + colors.blue("CALLER_FUNCTION") + "] " + colors.blue(functionName + "()") + $str;
-    var logLineDetails = _getFileStack();
-    var $type = "sys-function";
-    var content = _getBlockPrefix("normal", logLineDetails) + " " + str;
-    if (pref.logConfig.verboseLogTypeArray.indexOf($type.toLowerCase()) == -1)
-        console.log(content);
-}
-exports.logCallerFunction = logCallerFunction;
-/**
- * Log and indent to the main grid column
- * @param $str
- */
-function logWithTab($str) {
-    var logLineDetails = _getFileStack();
-    var textlength = stripcolorcodes(_getBlockPrefix("normal", logLineDetails)).length;
-    arguments[0] = ((pref.logConfig.displayInfo) ? _rightPaddingAt(textlength, " ") : "") + " " + arguments[0];
-    console.log.apply(this, arguments);
-}
-exports.logWithTab = logWithTab;
-/**
- * Nothing special right now, just object inspector (TODO:Prettify)
- * @param $object
- * @param $depth
- */
-function inspect($object, $depth = 3) {
-    $depth = ($depth == null) ? 3 : $depth;
-    console.log(util.inspect($object, { showHidden: false, depth: $depth, colors: true }));
-}
-exports.inspect = inspect;
-/**
- * Log Section with formatting
- * @param $name
- * @param $size
- */
-function section($name, $size = 0) {
-    $size = $size || 0;
-    this.line(0, "=", $size);
-    console.log(colors.gray("   " + $name));
-    this.line($size, "=", 0);
-}
-exports.section = section;
-const LINE_WIDTH = 160;
-/**
- * Log Line
- * @param $size
- * @param $style
- * @param $bottomsize
- */
-function line($size = 0, $style = '-', $bottomsize) {
-    $bottomsize = ($bottomsize === undefined) ? $size : $bottomsize;
-    $style = $style || "-";
-    var i;
-    for (i = 0; i < $size; i++) {
-        console.log("");
+    _getBlockProjectID() {
+        return "[" + colors.magenta(this.pref.logConfig.projectID) + "]";
     }
-    console.log(colors.gray(_repeatString(LINE_WIDTH, $style)));
-    for (i = 0; i < $bottomsize; i++) {
-        console.log("");
+    _getCalcTabSize() {
+        return ((this.pref.logConfig.displayFile) ? this.pref.logConfig.fileMaxLength : 0) +
+            ((this.pref.logConfig.displayIcon) ? 3 : 0) +
+            ((this.pref.logConfig.displayTime) ? 10 : 0) +
+            ((this.pref.logConfig.displayDate) ? 9 : 0) +
+            ((this.pref.logConfig.displayProjectID && this.pref.logConfig.projectID !== '') ? (this.pref.logConfig.projectID.length + 2) : 0);
+    }
+    _rightPaddingPrefix($str) {
+        return _rightPaddingAt(this._getCalcTabSize(), $str);
+    }
+    /**
+     * Set Preference of current instance
+     * @param logConfig
+     */
+    setPreference(logConfig) {
+        this.pref.logConfig = Object.assign({}, this.pref.logConfig, logConfig);
+    }
+    _getBlockPrefix($mode, $fileAndLine) {
+        return (this.pref.logConfig.displayInfo) ? this._rightPaddingPrefix(((this.pref.logConfig.displayIcon) ? _getBlockMode($mode) : "") +
+            ((this.pref.logConfig.displayTime) ? this._getBlockCurrentTime() + "" : "") +
+            ((this.pref.logConfig.displayProjectID && this.pref.logConfig.projectID !== '') ? this._getBlockProjectID() : "") +
+            ((this.pref.logConfig.displayFile) ? _getBlockFile($fileAndLine) : "")) : "";
+    }
+    _getFileStack() {
+        var stack = (new Error().stack).toString();
+        var reg = /[(]?([a-z\-\&A-Z._:0-9/]+[0-9]+:[0-9]+)[)]?/mg;
+        var match;
+        var matcharray = [];
+        while ((match = reg.exec(stack)) != null) {
+            matcharray.push(match[1]);
+        }
+        var folder = this.pref.logConfig.rootFolder;
+        //console.log(matcharray);
+        var file = matcharray[2].split(folder)[1];
+        if (file.length > this.pref.logConfig.fileMaxLength)
+            file = '...' + file.slice(file.length - (this.pref.logConfig.fileMaxLength - 3));
+        return file;
+    }
+    /**
+     * Default Log (console.log) with options
+     * @param $str
+     */
+    log($str) {
+        var logLineDetails = this._getFileStack();
+        arguments[0] = this._getBlockPrefix("normal", logLineDetails) + " " + arguments[0];
+        console.log.apply(this, arguments);
+    }
+    /**
+     * Default Log with warn type
+     * @param $str
+     */
+    warn($str) {
+        var logLineDetails = this._getFileStack();
+        arguments[0] = this._getBlockPrefix("warn", logLineDetails) + " " + arguments[0];
+        console.log.apply(this, arguments);
+    }
+    /**
+     * Error Log
+     * @param $str
+     */
+    error($str) {
+        var logLineDetails = this._getFileStack();
+        arguments[0] = this._getBlockPrefix("error", logLineDetails) + " " + arguments[0];
+        console.log.apply(this, arguments);
+    }
+    /**
+     * Default Log, but mark as system type
+     * @param $str
+     */
+    systemLog($str) {
+        var logLineDetails = this._getFileStack();
+        arguments[0] = this._getBlockPrefix("system", logLineDetails) + " " + arguments[0];
+        console.log.apply(this, arguments);
+    }
+    /**
+     * Default Log, but mark as specific type
+     * @param $type Specific Type (This can be set verbose anytime at preference.logConfig.verboseLogTypeArray[])
+     * @param $str
+     */
+    logWithType($type, $str) {
+        var logLineDetails = this._getFileStack();
+        $str = this._getBlockPrefix("normal", logLineDetails) + " " + $str;
+        if (this.pref.logConfig.verboseLogTypeArray.indexOf($type.toLowerCase()) === -1)
+            console.log($str);
+    }
+    /**
+     * Log current private location
+     * @param $str
+     */
+    logFunction($str) {
+        $str = ($str == null) ? "" : colors.gray(" -- " + $str);
+        var stack = (new Error().stack).toString();
+        var reg = /(at ([a-zA-Z0-9.]+) )/mg;
+        var match;
+        var matcharray = [];
+        while ((match = reg.exec(stack)) != null) {
+            matcharray.push(match[2]);
+        }
+        var privateName = matcharray[1];
+        var str = "[" + colors.blue("FUNCTION") + "] " + colors.blue(privateName + "()") + $str;
+        var logLineDetails = this._getFileStack();
+        var $type = "sys-private";
+        var content = this._getBlockPrefix("normal", logLineDetails) + " " + str;
+        if (this.pref.logConfig.verboseLogTypeArray.indexOf($type.toLowerCase()) == -1)
+            console.log(content);
+    }
+    logCallerFunction($str) {
+        $str = ($str == null) ? "" : colors.gray(" -- " + $str);
+        var stack = (new Error().stack).toString();
+        var reg = /(at ([a-zA-Z0-9.]+) )/mg;
+        var match;
+        var matcharray = [];
+        while ((match = reg.exec(stack)) != null) {
+            matcharray.push(match[2]);
+        }
+        var privateName = matcharray[2];
+        var str = "[" + colors.blue("CALLER_FUNCTION") + "] " + colors.blue(privateName + "()") + $str;
+        var logLineDetails = this._getFileStack();
+        var $type = "sys-private";
+        var content = this._getBlockPrefix("normal", logLineDetails) + " " + str;
+        if (this.pref.logConfig.verboseLogTypeArray.indexOf($type.toLowerCase()) == -1)
+            console.log(content);
+    }
+    /**
+     * Log and indent to the main grid column
+     * @param $str
+     */
+    logWithTab($str) {
+        var logLineDetails = this._getFileStack();
+        var textlength = stripcolorcodes(this._getBlockPrefix("normal", logLineDetails)).length;
+        arguments[0] = ((this.pref.logConfig.displayInfo) ? _rightPaddingAt(textlength, " ") : "") + " " + arguments[0];
+        console.log.apply(this, arguments);
+    }
+    /**
+     * Nothing special right now, just object inspector
+     * @param $object
+     * @param $depth
+     */
+    inspect($object, $depth = 3) {
+        $depth = ($depth == null) ? 3 : $depth;
+        console.log(util.inspect($object, { showHidden: false, depth: $depth, colors: true }));
+    }
+    /**
+     * Log Section with formatting
+     * @param $name
+     * @param $size
+     */
+    section($name, $size = 0) {
+        $size = $size || 0;
+        this.line(0, "=", $size);
+        console.log(colors.gray("   " + $name));
+        this.line($size, "=", 0);
+    }
+    /**
+     * Log Line
+     * @param $size
+     * @param $style
+     * @param $bottomsize
+     */
+    line($size = 0, $style = '-', $bottomsize) {
+        $bottomsize = ($bottomsize === undefined) ? $size : $bottomsize;
+        $style = $style || "-";
+        var i;
+        for (i = 0; i < $size; i++) {
+            console.log("");
+        }
+        console.log(colors.gray(_repeatString(LINE_WIDTH, $style)));
+        for (i = 0; i < $bottomsize; i++) {
+            console.log("");
+        }
     }
 }
-exports.line = line;
+exports.ToShell = ToShell;
+const defaultInstance = new ToShell();
+exports.default = defaultInstance;

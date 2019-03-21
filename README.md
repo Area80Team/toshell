@@ -12,6 +12,17 @@ We create it for fast and beautiful logging.
 [![NPM](https://nodei.co/npm/toshell.png)](https://nodei.co/npm/toshell/)
 
 ---
+### Change Log
+#### v1.2.0
+- Use default varialbe to access global instance 
+```javascript
+var toshell = require('toshell').default;//javascript
+```
+```typescript
+import {default as toshell} from 'toshell';//typescript
+```
+- Now you can create new instance of toshell for further preference modification without effect default instance via toshellInstance.newInstance() 
+---
 
 ### TODO
 - [ ] parse any object as pretty json format
@@ -27,7 +38,7 @@ We create it for fast and beautiful logging.
 ### Usage
 
 ```javascript
-var toshell = require("toshell");
+var toshell = require("toshell").default;
 toshell.log("Log using log()");
 toshell.warn("Log using warn()");
 toshell.error("Log using error()");
@@ -59,7 +70,7 @@ toshell.setPreference({
 ```
 or
 ```javascript
-var toshell = require("toshell");
+var toshell = require("toshell").default;
 toshell.setPreference({
 	displaySystemLog : true, //display log that calls via logger.systelLog
 	displayDate      : false, //display date
@@ -77,7 +88,7 @@ toshell.setPreference({
 You can change behavior of preference to apply within the file
 
 ```javascript
-var toshell = require("toshell");
+var toshell = require("toshell").default;
 toshell.setPreference({projectID:"MY_PROJECT"});
 //the preference will only apply to current require scope...
 ```
@@ -88,7 +99,7 @@ toshell.setPreference({projectID:"MY_PROJECT"});
 Try it yourself
 
 ```javascript
-var toshell = require("toshell");
+var toshell = require("toshell").default;
 toshell.section("Playing with indent");
 toshell.log("Line 1");
 toshell.logWithTab("Line 2");
@@ -96,23 +107,18 @@ toshell.logWithTab("Line 3");
 
 toshell.section("Playing with preference");
 
-toshell.setPreference({projectID:"MY_PROJECT"});
-toshell.log("projectID:\"MY_PROJECT\" preference");
+//create new instance of toshell
+var localToShell = toshell.newInstance({projectID:"LOCAL"});
 
-toshell.setPreference({displayFile:false});
-toshell.warn("displayFile:false preference");
+localToShell.log("Create local instance and set projectID:\"LOCAL\"");
 
-toshell.setPreference({displayDate:true});
-toshell.error("displayDate:true");
+localToShell.setPreference({displayFile:false});
+localToShell.warn("displayFile:false");
 
-toshell.line();
-toshell.setPreference({projectID:"MY_PROJECT"});
-toshell.log("projectID:\"MY_PROJECT\"");
+localToShell.setPreference({displayTime:false});
+localToShell.error("displayTime:false");
 
-toshell.setPreference({displayFile:false});
-toshell.warn("displayFile:false");
+toshell.log('Log from GLOBAL instance');
+localToShell.log('Log from LOCAL instance');
 
-toshell.setPreference({displayDate:true});
-toshell.error("displayDate:true");
-toshell.line();
 ```

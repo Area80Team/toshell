@@ -63,7 +63,7 @@ Preference can set at any point of the application.
 It's will apply to all usage afterwards, by default.
 
 ```javascript
-var toshell = require("toshell");
+var toshell = require("toshell").default;
 toshell.setPreference({
 	projectID : "MY_PROJECT"
 });

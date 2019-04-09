@@ -85,12 +85,16 @@ toshell.setPreference({
 });
 ```
 
-You can change behavior of preference to apply within the file
+You can create local instance and change logging behavior
 
 ```javascript
-var toshell = require("toshell").default;
-toshell.setPreference({projectID:"MY_PROJECT"});
-//the preference will only apply to current require scope...
+var toshell = require("toshell").default;//import default instance
+var localToShell = toshell.newInstance({projectID:"LOCAL"});
+//Or
+var localToShell = toshell.newInstance({projectID:"LOCAL"}, true);//Copy configuration from current instance
+//use localToShell
+localToShell.log('Log something');
+
 ```
 ---
 

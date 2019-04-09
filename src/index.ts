@@ -41,7 +41,8 @@ var standardPreference: Preference = {
 		displayIcon: true,
 		verboseLogTypeArray: [], //verbose log when use logger.logWithType
 		projectID: "",
-		rootFolder: path.resolve(__dirname, "../../../")
+		//rootFolder: path.resolve(__dirname, "../../../")
+		rootFolder: path.resolve(path.dirname(require.main.filename),'../')
 	}
 };
 
@@ -165,7 +166,7 @@ export class ToShell {
 
 	private _getFileStack(): string {
 		var stack = (new Error().stack).toString();
-
+		//console.log(stack);
 		var reg = /[(]?([a-z\-\&A-Z._:0-9/]+[0-9]+:[0-9]+)[)]?/mg;
 		var match;
 		var matcharray = [];
@@ -175,6 +176,9 @@ export class ToShell {
 		var folder = this.pref.logConfig.rootFolder;
 		//console.log(matcharray);
 		var file = <string>matcharray[2].split(folder)[1];
+		if(!file){
+			file = matcharray[2];
+		}
 		if (file.length > this.pref.logConfig.fileMaxLength) file = '...' + file.slice(file.length - (this.pref.logConfig.fileMaxLength - 3))
 		return file;
 

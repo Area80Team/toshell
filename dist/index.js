@@ -5,6 +5,56 @@ const colors = require("colors");
 const path = require("path");
 const stripcolorcodes = require("stripcolorcodes");
 const util = require("util");
+function getColorCode(color) {
+    switch (color) {
+        case '_reset':
+            return '\x1b[0m';
+        case 'txt_bright':
+            return '\x1b[1m';
+        case 'txt_dim':
+            return '\x1b[2m';
+        case 'txt_underscore':
+            return '\x1b[4m';
+        case 'txt_blink':
+            return '\x1b[5m';
+        case 'txt_reverse':
+            return '\x1b[7m';
+        case 'txt_hidden':
+            return '\x1b[8m';
+        case 'black':
+            return '\x1b[30m';
+        case 'red':
+            return '\x1b[31m';
+        case 'green':
+            return '\x1b[32m';
+        case 'yellow':
+            return '\x1b[33m';
+        case 'blue':
+            return '\x1b[34m';
+        case 'magenta':
+            return '\x1b[35m';
+        case 'cyan':
+            return '\x1b[36m';
+        case 'white':
+            return '\x1b[37m';
+        case 'bg_black':
+            return '\x1b[40m';
+        case 'bg_red':
+            return '\x1b[41m';
+        case 'bg_green':
+            return '\x1b[42m';
+        case 'bg_yellow':
+            return '\x1b[43m';
+        case 'bg_blue':
+            return '\x1b[44m';
+        case 'bg_magenta':
+            return '\x1b[45m';
+        case 'bg_cyan':
+            return '\x1b[46m';
+        case 'bg_white':
+            return '\x1b[47m';
+    }
+}
 var standardPreference = {
     logConfig: {
         displayDate: false,
@@ -122,6 +172,15 @@ class ToShell {
         if (file.length > this.pref.logConfig.fileMaxLength)
             file = '...' + file.slice(file.length - (this.pref.logConfig.fileMaxLength - 3));
         return file;
+    }
+    /**
+     * Wrap string with color code
+     * @param {ColorName} name
+     * @param {string} message
+     * @return {string}
+     */
+    color(name, message) {
+        return `${getColorCode(name)}${message}${getColorCode('_reset')}`;
     }
     /**
      * Default Log (console.log) with options

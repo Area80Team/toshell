@@ -4,6 +4,82 @@ import * as path from 'path';
 import * as stripcolorcodes from 'stripcolorcodes';
 import * as util from 'util';
 
+function getColorCode(color: ColorName): string {
+	switch (color) {
+		case '_reset' :
+			return '\x1b[0m';
+		case 'txt_bright' :
+			return '\x1b[1m';
+		case 'txt_dim' :
+			return '\x1b[2m';
+		case 'txt_underscore' :
+			return '\x1b[4m';
+		case 'txt_blink' :
+			return '\x1b[5m';
+		case 'txt_reverse' :
+			return '\x1b[7m';
+		case 'txt_hidden' :
+			return '\x1b[8m';
+		case 'black' :
+			return '\x1b[30m';
+		case 'red' :
+			return '\x1b[31m';
+		case 'green' :
+			return '\x1b[32m';
+		case 'yellow' :
+			return '\x1b[33m';
+		case 'blue' :
+			return '\x1b[34m';
+		case 'magenta' :
+			return '\x1b[35m';
+		case 'cyan' :
+			return '\x1b[36m';
+		case 'white' :
+			return '\x1b[37m';
+		case 'bg_black' :
+			return '\x1b[40m';
+		case 'bg_red' :
+			return '\x1b[41m';
+		case 'bg_green' :
+			return '\x1b[42m';
+		case 'bg_yellow' :
+			return '\x1b[43m';
+		case 'bg_blue' :
+			return '\x1b[44m';
+		case 'bg_magenta' :
+			return '\x1b[45m';
+		case 'bg_cyan' :
+			return '\x1b[46m';
+		case 'bg_white' :
+			return '\x1b[47m';
+	}
+}
+
+type ColorName =
+	'_reset' |
+	'txt_bright' |
+	'txt_dim' |
+	'txt_underscore' |
+	'txt_blink' |
+	'txt_reverse' |
+	'txt_hidden' |
+	'black' |
+	'red' |
+	'green' |
+	'yellow' |
+	'blue' |
+	'magenta' |
+	'cyan' |
+	'white' |
+	'bg_black' |
+	'bg_red' |
+	'bg_green' |
+	'bg_yellow' |
+	'bg_blue' |
+	'bg_magenta' |
+	'bg_cyan' |
+	'bg_white' ;
+
 type Preference = {
 	logConfig: {
 		displayDate: boolean,
@@ -42,7 +118,7 @@ var standardPreference: Preference = {
 		verboseLogTypeArray: [], //verbose log when use logger.logWithType
 		projectID: "",
 		//rootFolder: path.resolve(__dirname, "../../../")
-		rootFolder: path.resolve(path.dirname(require.main.filename),'../')
+		rootFolder: path.resolve(path.dirname(require.main.filename), '../')
 	}
 };
 
@@ -176,7 +252,7 @@ export class ToShell {
 		var folder = this.pref.logConfig.rootFolder;
 		//console.log(matcharray);
 		var file = <string>matcharray[2].split(folder)[1];
-		if(!file){
+		if (!file) {
 			file = matcharray[2];
 		}
 		if (file.length > this.pref.logConfig.fileMaxLength) file = '...' + file.slice(file.length - (this.pref.logConfig.fileMaxLength - 3))
@@ -184,6 +260,15 @@ export class ToShell {
 
 	}
 
+	/**
+	 * Wrap string with color code
+	 * @param {ColorName} name
+	 * @param {string} message
+	 * @return {string}
+	 */
+	color(name: ColorName, message: string): string {
+		return `${getColorCode(name)}${message}${getColorCode('_reset')}`;
+	}
 
 	/**
 	 * Default Log (console.log) with options
@@ -341,6 +426,7 @@ export class ToShell {
 		}
 	}
 }
+
 const defaultInstance = new ToShell();
 
 export default defaultInstance;

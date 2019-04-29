@@ -13,6 +13,8 @@ We create it for fast and beautiful logging.
 
 ---
 ### Change Log
+#### v1.3.0
+- Add color functionality (light weight)
 #### v1.2.0
 - Use default varialbe to access global instance 
 ```javascript
@@ -124,5 +126,39 @@ localToShell.error("displayTime:false");
 
 toshell.log('Log from GLOBAL instance');
 localToShell.log('Log from LOCAL instance');
+
+```
+
+### Color Usage
+Built-in color functionality (light-weight) 
+```javascript
+var toshell = require('toshell').default;//javascript
+toshell.log(`Log with ${toshell.color('red','happy red')} color`);
+/*
+Here is the list of color you can use
+'_reset' |
+'txt_bright' |
+'txt_dim' |
+'txt_underscore' |
+'txt_blink' |
+'txt_reverse' |
+'txt_hidden' |
+'black' |
+'red' |
+'green' |
+'yellow' |
+'blue' |
+'magenta' |
+'cyan' |
+'white' |
+'bg_black' |
+'bg_red' |
+'bg_green' |
+'bg_yellow' |
+'bg_blue' |
+'bg_magenta' |
+'bg_cyan' |
+'bg_white' 
+*/
 
 ```

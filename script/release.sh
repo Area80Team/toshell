@@ -87,6 +87,7 @@ then
   echo "npm version $version_incre"
   echo "Current version: $version_name@$version"
 else
+  npm run build
 
   echo "git commit  with message: $msg"
   git add .

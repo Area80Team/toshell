@@ -1,3 +1,4 @@
+declare type ColorName = '_reset' | 'txt_bright' | 'txt_dim' | 'txt_underscore' | 'txt_blink' | 'txt_reverse' | 'txt_hidden' | 'black' | 'red' | 'green' | 'yellow' | 'blue' | 'magenta' | 'cyan' | 'white' | 'bg_black' | 'bg_red' | 'bg_green' | 'bg_yellow' | 'bg_blue' | 'bg_magenta' | 'bg_cyan' | 'bg_white';
 declare type Preference = {
     logConfig: {
         displayDate: boolean;
@@ -44,6 +45,13 @@ export declare class ToShell {
     setPreference(logConfig: ILogConfig): void;
     private _getBlockPrefix;
     private _getFileStack;
+    /**
+     * Wrap string with color code
+     * @param {ColorName} name
+     * @param {string} message
+     * @return {string}
+     */
+    color(name: ColorName, message: string): string;
     /**
      * Default Log (console.log) with options
      * @param $str

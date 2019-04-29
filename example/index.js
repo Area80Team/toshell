@@ -47,3 +47,4 @@ localToShell.error("displayTime:false");
 toshell.log('Log from GLOBAL instance');
 localToShell.log('Log from LOCAL instance');
 
+localToShell.log(`Log with ${localToShell.color('red','happy red')} color`);
